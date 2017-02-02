@@ -1,6 +1,6 @@
 # Tweet planner
 
-The goal of this python script is to tweet automatically list of « message » to your twitter Account.
+The goal of this python script is to tweet automatically a queue of « message » to your twitter Account.
 
 ### Installation
 
