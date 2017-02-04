@@ -13,8 +13,6 @@ parser.add_argument('--debug', action='store_true', help='Debug mode')
 parser.add_argument('-a', '--add', help="Add a new tweet to the « queue ».")
 args = parser.parse_args()
 
-queue_file_name = queue_file_name
-
 if args.debug:
     logging.basicConfig(level=logging.DEBUG)
 
@@ -33,15 +31,15 @@ def add_to_queue(text):
         logging.error("The text can’t exceed 140 characters")
         sys.exit()
     else:
-        with open(queue_file_name, "a") as queue_file:
-            queue_file.write(text)
+        with open("waiting.txt", "a") as queue_file:
+            queue_file.write("{0}\n".format(text))
 
 def check_queue_file():
-    return os.path.isfile(queue_file_name)
+    return os.path.isfile("waiting.txt")
 
 def init_queue():
     logging.debug("Init queue")
-    open(queue_file_name, 'a').close()
+    open("waiting.txt", 'a').close()
 
 if __name__ == '__main__':
     try:
