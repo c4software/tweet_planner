@@ -17,6 +17,7 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 def send_tweet():
+    # TODO manage tweet send frequency
     logging.debug("Send Tweet")
     text = get_from_queue()
     if text:
