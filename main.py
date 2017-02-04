@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import argparse
-import logging
-import tweepy
-import sys
+import sys, argparse, logging, random
 import os.path
+import tweepy
 
 from secrets import consumer_key, consumer_secret, access_token, access_token_secret
 
@@ -15,15 +13,35 @@ args = parser.parse_args()
 
 if args.debug:
     logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
 
 def send_tweet():
     logging.debug("Send Tweet")
-    twitter_api = tweeter_auth()
+    text = get_from_queue()
+    if text:
+        api = tweeter_auth()
+        api.update_status(status=text)
+    else:
+        logging.info("Nothing to tweet")
 
 def tweeter_auth():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     return tweepy.API(auth)
+
+def get_from_queue():
+    try:
+        with open("waiting.txt", "r+") as queue_file:
+            queue = queue_file.readlines()
+            text = random.choice(queue)
+            queue.remove(text)
+            queue_file.seek(0)
+            queue_file.truncate()
+            queue_file.writelines(queue)
+            return text
+    except:
+        return None
 
 def add_to_queue(text):
     logging.debug("Add tweet to queue")
