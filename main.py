@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, argparse, logging, random
+import sys, argparse, logging, random, datetime
 import os.path
 import tweepy
 
@@ -7,7 +7,7 @@ from secrets import consumer_key, consumer_secret, access_token, access_token_se
 
 parser = argparse.ArgumentParser(description="Tweet planner")
 parser.add_argument('-i', '--init', action='store_true', help='Init the « queue » tweets databases.')
-parser.add_argument('--debug', action='store_true', help='Debug mode')
+parser.add_argument('-d', '--debug', action='store_true', help='Debug mode')
 parser.add_argument('-a', '--add', help="Add a new tweet to the « queue ».")
 args = parser.parse_args()
 
@@ -17,14 +17,16 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 def send_tweet():
-    # TODO manage tweet send frequency
-    logging.debug("Send Tweet")
-    text = get_from_queue()
-    if text:
-        api = tweeter_auth()
-        api.update_status(status=text)
+    api = tweeter_auth()
+    last_update = api.user_timeline(count=1)[0].created_at
+    if datetime.datetime.utcnow()-datetime.timedelta(minutes=20) > last_update:
+        text = get_from_queue()
+        if text:
+            api.update_status(status=text)
+        else:
+            logging.info("Nothing to tweet.")
     else:
-        logging.info("Nothing to tweet")
+        logging.info("Last tweet too recent.")
 
 def tweeter_auth():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
